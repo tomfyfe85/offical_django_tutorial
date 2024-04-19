@@ -14,9 +14,7 @@ def test_was_published_recently_with_future_question():
         """
         time = timezone.now() + datetime.timedelta(days=30)
         
-
         future_question = Question(pub_date=time)
-        print(future_question)
         assert future_question.was_published_recently() == False
 
 """
