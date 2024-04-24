@@ -2,7 +2,6 @@ import datetime
 from django.utils import timezone
 from polls.models import Question
 from django.urls import reverse
-import pytest
 
 
 class TestQuestionModel:
