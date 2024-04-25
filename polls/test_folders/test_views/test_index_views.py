@@ -17,10 +17,19 @@ in the past, positive for questions that have yet to be published).
 
 
 @pytest.fixture
-def create_question(question_text, days):
+def create_question():
+    def _create_question(question, days):
+        time = timezone.now() + datetime.timedelta(days=days)
+        return Question.objects.create(question_text=question, pub_date=time)
 
-    time = timezone.now() + datetime.timedelta(days=days)
-    return Question.objects.create(question_text=question_text, pub_date=time)
+    return _create_question
+
+
+@pytest.mark.django_db
+def test_fixture(create_question):
+
+    q = create_question("test question", -5)
+    assert q.question_text == "test question"
 
 
 """
@@ -44,6 +53,9 @@ index page.
 
 
 @pytest.mark.django_db
-def test_past_question():
-    question = create_question("Past question.", -30)
-    assert 1 + 1 == 2
+def test_past_question(create_question):
+    create_question("Past question.", -30)
+
+    response = client.get(reverse("polls:index"))
+    print(create_question)
+    assert response.status_code == 200
