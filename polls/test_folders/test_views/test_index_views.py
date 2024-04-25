@@ -28,8 +28,8 @@ def create_question():
 @pytest.mark.django_db
 def test_fixture(create_question):
 
-    q = create_question("test question", -5)
-    assert q.question_text == "test question"
+    q = create_question("test question?", -5)
+    assert q.question_text == "test question?"
 
 
 """
@@ -46,7 +46,7 @@ def test_no_questions():
     assert list(response.context["latest_question_list"]) == []
 
 
-"""
+"""`
 Questions with a pub_date in the past are displayed on the
 index page.
 """
@@ -54,8 +54,48 @@ index page.
 
 @pytest.mark.django_db
 def test_past_question(create_question):
-    create_question("Past question.", -30)
-
+    q = create_question("Past question.", -30)
     response = client.get(reverse("polls:index"))
-    print(create_question)
+
     assert response.status_code == 200
+    assert list(response.context["latest_question_list"]) == [q]
+
+
+"""
+Questions with a pub_date in the future aren't displayed on
+the index page.
+"""
+
+
+@pytest.mark.django_db
+def test_future_question(create_question):
+    q = create_question("future question.", 30)
+    response = client.get(reverse("polls:index"))
+    assert list(response.context["latest_question_list"]) == []
+
+
+"""
+Even if both past and future questions exist, only past questions
+are displayed.
+"""
+
+
+@pytest.mark.django_db
+def test_future_question_and_past_question(create_question):
+    q = create_question("Past question.", -30)
+    create_question("future question.", 30)
+    response = client.get(reverse("polls:index"))
+    assert list(response.context["latest_question_list"]) == [q]
+
+
+"""
+The questions index page may display multiple questions.
+"""
+
+
+@pytest.mark.django_db
+def test_two_past_questions(create_question):
+    q1 = create_question("Past question 1.", -30)
+    q2 = create_question("Past question 2.", -5)
+    response = client.get(reverse("polls:index"))
+    assert list(response.context["latest_question_list"]) == [q2, q1]
