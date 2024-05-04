@@ -103,3 +103,15 @@ class TestDetailViewTests:
         future_question = create_question("future question", 5)
         response = client.get(reverse("polls:detail", args=[future_question.id]))
         assert response.status_code == 404
+
+    """
+    The detail view of a question with a pub_date in the past
+    displays the question's text.
+    """
+
+    @pytest.mark.django_db
+    def test_past_question(self, create_question):
+
+        past_question = create_question("past question", -1)
+        response = client.get(reverse("polls:detail", args=[past_question.id]))
+        assert past_question.question_text in response.content.decode("utf-8")
