@@ -3,7 +3,7 @@ from django.utils import timezone
 from polls.models import Question
 from django.urls import reverse
 
-       
+
 
 class TestQuestionModel:
         """
